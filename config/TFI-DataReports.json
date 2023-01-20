@@ -1,0 +1,4 @@
+{
+ "reports_input_path": "abfss://analytics-data@adlapiotfi.dfs.core.windows.net/TFI-AnalyticsData",
+ "reports_output_path": "abfss://analytics-data@adlapiotfi.dfs.core.windows.net/TFI-ReportsData"
+}

@@ -1,0 +1,49 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: 'ubuntu-20.04'
+
+variables:
+  - group: vg-apio-tfi
+
+steps:
+- bash: pip install -Iv azure-cli==2.41.0 --extra-index-url https://azurecliprod.blob.core.windows.net/edge
+  displayName: 'Upgrade Azure CLI'
+
+- bash: bash scripts/EstablishEnv.sh
+  displayName: 'Establish the Environment'
+
+- bash: bash scripts/ExecuteTests.sh
+  displayName: 'Execute the Tests'
+  env:
+    testpath: 'tests/reports/'
+
+- bash: bash scripts/PackageModule.sh
+  displayName: 'Package the Module'
+  env:
+    packagepath: 'setup.py'
+
+- bash: bash scripts/SynapseDeploy.sh
+  displayName: 'Deploy the Module'
+  env:
+    servicesecret: $(app-client-secret)
+    serviceuser: $(app-client-id)
+    servicetenant: $(app-tenant-id)
+    sparkpool: 'spapiotfi'
+    landingaccount: 'adlapiotfi'
+    landingcontainer: 'raw-data'
+    workspacename: 'asa-apio-tfi'
+    rgname: 'rg-apio-tfi'
+    definitionfile: 'src/reports_boot.py'
+    definitionfiletarget: 'ConfigFiles/reports_boot.py'
+    configfile: 'config/TFI-DataReports.json'
+    configfiletarget: 'ConfigFiles/TFI-DataReports.json'
+    packagename: 'reports'
